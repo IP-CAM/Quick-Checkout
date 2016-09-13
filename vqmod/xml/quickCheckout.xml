@@ -1,0 +1,139 @@
+<!--
+/*
+ * @support
+ * http://www.opensourcetechnologies.com/contactus.html
+ * sales@opensourcetechnologies.com
+* */
+-->
+<modification>  
+   <id>Quick Checkout</id>
+   <version>1.0.0</version>
+   <vqmver>2.4.1</vqmver>
+   <author>OST</author>
+   					
+	<file name="catalog/controller/checkout/confirm.php">
+	   <operation>
+		   <search position="before"><![CDATA[if ($this->cart->hasShipping()) {]]></search>
+		   <add>
+			   <![CDATA[
+					$this->load->model('account/address');
+					$this->session->data['shipping_address'] = $this->model_account_address->getAddress($this->customer->getAddressId());
+			   ]]>
+		   </add>
+		</operation>
+		 <operation>
+		   <search position="before"><![CDATA[if (!isset($this->session->data['shipping_method'])) {]]></search>
+		   <add>
+			   <![CDATA[
+			   /*
+			   ]]>
+		   </add>
+		</operation>
+		<operation>
+		   <search position="after" offset='2'><![CDATA[if (!isset($this->session->data['shipping_method'])) {]]></search>
+		   <add>
+			   <![CDATA[
+			   */
+			   ]]>
+		   </add>
+		</operation>
+	</file>
+   <file name="catalog/controller/checkout/payment_method.php">
+	   <operation>
+		   <search position="after"><![CDATA[$this->load->language('checkout/checkout');]]></search>
+		   <add>
+			   <![CDATA[
+					$this->load->model('account/address');
+					$this->session->data['payment_address'] = $this->model_account_address->getAddress($this->customer->getAddressId());
+			   ]]>
+		   </add>
+		</operation>
+	</file>
+   
+     <file name="catalog/view/theme/*/template/checkout/checkout.tpl">
+	   <operation>
+		   <search position="before"><![CDATA[<?php if (!$logged && $account != 'guest') { ?>]]></search>
+		   <add>
+			   <![CDATA[
+					<div class="panel panel-default" id='billing_adrress' style='display:none;'>
+					  <div class="panel-heading">
+						<h4 class="panel-title"></h4>
+					  </div>
+					  <div class="panel-collapse collapse" id="collapse-payment-address">
+						<div class="panel-body"></div>
+					  </div>
+					</div>
+					<!--
+			   ]]>
+		   </add>
+		</operation>
+		<operation>
+		   <search position="before"><![CDATA[<?php if ($shipping_required) { ?>]]></search>
+			   <add>
+				   <![CDATA[
+						-->
+						<?php $shipping_required='';?>
+				   ]]>
+			   </add>
+		</operation>
+		<operation>
+		   <search position="before"><![CDATA[$(document).on('change', 'input[name=\'account\']', function() {]]></search>
+			   <add>
+				   <![CDATA[
+						/*
+				   ]]>
+			   </add>
+		</operation>
+		<operation>
+		   <search position="before"><![CDATA[<?php if (!$logged) { ?>]]></search>
+			   <add>
+				   <![CDATA[
+						*/
+				   ]]>
+			   </add>
+		</operation>
+		<operation>
+		   <search position="after" index='2'><![CDATA[$(document).ready(function() {]]></search>
+			   <add>
+				   <![CDATA[
+						/*
+				   ]]>
+			   </add>
+		</operation>
+		<operation>
+		   <search position="before" index='2'><![CDATA[$('#collapse-payment-address .panel-body').html(html);]]></search>
+			   <add>
+				   <![CDATA[
+						$('#billing_adrress').css({'display':'block'});
+				   ]]>
+			   </add>
+		</operation>
+		<operation>
+		   <search position="after" index='2' offset='19'><![CDATA[$(document).ready(function() {]]></search>
+			   <add>
+				   <![CDATA[
+				   */
+						$.ajax({
+                    url: 'index.php?route=checkout/payment_method',
+                    dataType: 'html',
+                    success: function(html) {
+                        $('#collapse-payment-method .panel-body').html(html);
+
+						$('#collapse-payment-method').parent().find('.panel-heading .panel-title').html('<a href="#collapse-payment-method" data-toggle="collapse" data-parent="#accordion" class="accordion-toggle"><?php echo $text_checkout_payment_method; ?> <i class="fa fa-caret-down"></i></a>');
+
+						$('a[href=\'#collapse-payment-method\']').trigger('click');
+
+						$('#collapse-checkout-confirm').parent().find('.panel-heading .panel-title').html('<?php echo $text_checkout_confirm; ?>');
+                    },
+                    error: function(xhr, ajaxOptions, thrownError) {
+                        alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+                    }
+                });
+				   ]]>
+			   </add>
+		</operation>
+                    
+   </file>
+
+    
+</modification>
